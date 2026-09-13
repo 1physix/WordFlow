@@ -16,5 +16,5 @@ for i in range(0,192001,48000):
 """
 
 
-text = mlx.transcribe("TestAudio.m4a", path_or_hf_repo="models/large")['text']
+text = mlx.transcribe("TestAudio.m4a", path_or_hf_repo = "mlx-community/whisper-large-v3-turbo")['text']
 print(text)
