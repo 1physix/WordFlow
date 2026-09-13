@@ -15,6 +15,18 @@ for i in range(0,192001,48000):
     print(myrecording[i:i+48000])
 """
 
+model = "mlx-community/whisper-turbo"
 
-text = mlx.transcribe("TestAudio.m4a", path_or_hf_repo = "mlx-community/whisper-large-v3-turbo")['text']
-print(text)
+text1 = mlx.transcribe("TestAudio1.m4a", path_or_hf_repo = model)['text']
+print(text1)
+
+
+text2 = mlx.transcribe("TestAudio2.m4a", path_or_hf_repo = model)['text']
+print(text2)
+
+"""
+Models tested (replace to use): 
+> mlx-community/whisper-large-v3-mlx #Accurate, but it's just too slow
+> mlx-community/whisper-large-v3-turbo #Accurate, a bit quicker than the prev model, but still a bit slow.
+> mlx-community/whisper-turbo #Accurate, the fastest of the three, but not by that much.
+"""
