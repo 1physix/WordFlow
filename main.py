@@ -2,10 +2,16 @@ import sounddevice as sd
 import mlx_whisper as mlx
 from mlx_whisper.load_models import load_model
 from scipy.signal import resample
+from pynput.keyboard import Key, Controller
+from pynput import keyboard
+from time import sleep
 
 model = "mlx-community/whisper-turbo"
 loaded_model = load_model(model)
 sample_rate = 16000 #Whisper only accepts audio files with a sample rate of 16kHz
+
+"press, release are a pair. type to use variables"
+
 
 """
 Models tested (replace to use): 
@@ -15,6 +21,7 @@ Models tested (replace to use):
 """
 
 
+"""
 
 #note to self - for play/rec, you need to have a wait after each one in order to record the correct amount of audio.
 duration = 5 #secs
@@ -33,3 +40,15 @@ myrecording_flat_resampled = resample(myrecording_flat, sample_rate*duration)
 
 text2 = mlx.transcribe(myrecording_flat_resampled, path_or_hf_repo = model)["text"]
 print(text2)
+
+"""
+
+
+def on_press(key):
+    try:
+        print(f'alphanumeric key {key.char} pressed')
+    except AttributeError:
+        print(f'special key {key.char} pressed')
+
+listener = keyboard.Listener(on_press = on_press)
+listener.start()
