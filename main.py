@@ -37,18 +37,33 @@ sd.wait()
 
 myrecording_flat_resampled = resample(myrecording_flat, sample_rate*duration)
 #https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.resample.html
-
 text2 = mlx.transcribe(myrecording_flat_resampled, path_or_hf_repo = model)["text"]
 print(text2)
 
 """
 
+cmd_held = False #base state
 
 def on_press(key):
-    try:
-        print(f'alphanumeric key {key.char} pressed')
-    except AttributeError:
-        print(f'special key {key.char} pressed')
+    global cmd_held
+    if key == Key.cmd_r:
+        cmd_held = True
+        print(cmd_held)
+    if cmd_held == True:
+        try:
+            if key.char == "]":
+                print("Both CMD and ] are pressed")
+            else:
+                print("Both cmd and ] must be pressed to activate")
+        except:
+            pass
 
-listener = keyboard.Listener(on_press = on_press)
-listener.start()
+
+
+def on_release(key):
+    global cmd_held
+    cmd_held = False
+
+with keyboard.Listener(on_press = on_press, on_release = on_release) as listener: #Starts and stops listener in one line - Context Managing
+    listener.join()
+    #^^keeps the listener object active until conditions are met.
