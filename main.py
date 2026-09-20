@@ -46,6 +46,7 @@ cmd_held = False #base state
 
 def on_press(key):
     global cmd_held
+    print(key)
     if key == Key.cmd_r:
         cmd_held = True
         print(cmd_held)
@@ -53,6 +54,11 @@ def on_press(key):
         try:
             if key.char == "]":
                 print("Both CMD and ] are pressed")
+             
+            elif key.char == "§":
+                print("Both CMD and § are pressed. Killing program.")
+                return False
+
         except:
             pass
 
@@ -64,5 +70,5 @@ def on_release(key):
         cmd_held = False
 
 with keyboard.Listener(on_press = on_press, on_release = on_release) as listener: #Starts and stops listener in one line - Context Managing
-            listener.join()
+    listener.join()
     #^^keeps the listener object active until conditions are met.
