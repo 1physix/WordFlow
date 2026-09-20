@@ -53,8 +53,6 @@ def on_press(key):
         try:
             if key.char == "]":
                 print("Both CMD and ] are pressed")
-            else:
-                print("Both cmd and ] must be pressed to activate")
         except:
             pass
 
@@ -62,8 +60,9 @@ def on_press(key):
 
 def on_release(key):
     global cmd_held
-    cmd_held = False
+    if key == Key.cmd_r:
+        cmd_held = False
 
 with keyboard.Listener(on_press = on_press, on_release = on_release) as listener: #Starts and stops listener in one line - Context Managing
-    listener.join()
+            listener.join()
     #^^keeps the listener object active until conditions are met.
