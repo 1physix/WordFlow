@@ -21,12 +21,10 @@ Models tested (replace to use):
 """
 
 
-"""
 
+"""
 #note to self - for play/rec, you need to have a wait after each one in order to record the correct amount of audio.
 duration = 5 #secs
-fs = 48000 #Hz
-sd.default.channels = 1
 
 myrecording = sd.rec(int(fs * duration), samplerate=fs)
 sd.wait()
@@ -40,8 +38,23 @@ myrecording_flat_resampled = resample(myrecording_flat, sample_rate*duration)
 text2 = mlx.transcribe(myrecording_flat_resampled, path_or_hf_repo = model)["text"]
 print(text2)
 
+#Basically yeah, this only works for a set length of audio, not variable. If I want to do a push-to-talk style, we have to use an audio stream that constantly appends
+# to an array.
 """
 
+audio_blocks = []
+fs = 48000 #Hz
+sd.default.channels = 1
+
+def callback(indata, frames, time, status): #the function that is called by the InputStream object every time it records a block
+    global audio_blocks
+    audio_blocks.append(indata)
+
+stream = sd.InputStream(samplerate=fs, channels=sd.default.channels, callback=callback)
+
+
+
+"""
 cmd_held = False #base state
 brack_held = False #base state
 
@@ -55,7 +68,6 @@ def on_press(key):
 
         if key.char == "]":
             brack_held = True
-            print("Pressed Bracket")
 
         if cmd_held == True:
             if key.char == "§":
@@ -74,10 +86,11 @@ def on_release(key):
 
         if key.char == ']':
             brack_held = False
-            print("Released Bracket")
     except:
         pass
 
 with keyboard.Listener(on_press = on_press, on_release = on_release) as listener: #Starts and stops listener in one line - Context Managing
     listener.join()
     #^^keeps the listener object active until conditions are met.
+
+"""
