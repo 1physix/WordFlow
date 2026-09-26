@@ -43,31 +43,40 @@ print(text2)
 """
 
 cmd_held = False #base state
+brack_held = False #base state
 
 def on_press(key):
     global cmd_held
-    print(key)
-    if key == Key.cmd_r:
-        cmd_held = True
-        print(cmd_held)
-    if cmd_held == True:
-        try:
-            if key.char == "]":
-                print("Both CMD and ] are pressed")
-             
-            elif key.char == "§":
+    global brack_held
+    try:
+
+        if key == Key.cmd_r:
+            cmd_held = True
+
+        if key.char == "]":
+            brack_held = True
+            print("Pressed Bracket")
+
+        if cmd_held == True:
+            if key.char == "§":
                 print("Both CMD and § are pressed. Killing program.")
                 return False
 
-        except:
-            pass
-
+    except:
+        pass
 
 
 def on_release(key):
     global cmd_held
-    if key == Key.cmd_r:
-        cmd_held = False
+    try: 
+        if key == Key.cmd_r:
+            cmd_held = False
+
+        if key.char == ']':
+            brack_held = False
+            print("Released Bracket")
+    except:
+        pass
 
 with keyboard.Listener(on_press = on_press, on_release = on_release) as listener: #Starts and stops listener in one line - Context Managing
     listener.join()
