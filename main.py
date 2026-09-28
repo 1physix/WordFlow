@@ -36,6 +36,7 @@ sd.wait()
 myrecording_flat_resampled = resample(myrecording_flat, sample_rate*duration)
 #https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.resample.html
 text2 = mlx.transcribe(myrecording_flat_resampled, path_or_hf_repo = model)["text"]
+#Remember that mlx.transcribe() needs a 1D NumpyArray, so that's why we flattened it. We need (x,) rather than (x,1) which is 2D
 print(text2)
 
 #Basically yeah, this only works for a set length of audio, not variable. If I want to do a push-to-talk style, we have to use an audio stream that constantly appends
@@ -46,12 +47,13 @@ audio_blocks = []
 fs = 48000 #Hz
 sd.default.channels = 1
 
+recording = False
+
 def callback(indata, frames, time, status): #the function that is called by the InputStream object every time it records a block
     global audio_blocks
     audio_blocks.append(indata)
 
 stream = sd.InputStream(samplerate=fs, channels=sd.default.channels, callback=callback)
-
 
 
 """
@@ -94,3 +96,22 @@ with keyboard.Listener(on_press = on_press, on_release = on_release) as listener
     #^^keeps the listener object active until conditions are met.
 
 """
+
+def update_recording():
+    global recording
+    should_be_recording = cmd_held and brack_held
+
+    #if recording and should_be_recording: Just done for understanding
+        #recording = True
+
+    if recording and not should_be_recording:
+        recording = False
+        stream.stop()
+
+        OneD_audio_blocks = []
+
+
+    elif not recording and should_be_recording:
+        recording = True
+        audio_blocks = []
+        stream.start()
