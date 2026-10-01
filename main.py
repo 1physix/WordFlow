@@ -1,5 +1,6 @@
 import sounddevice as sd
 import mlx_whisper as mlx
+import numpy as np
 from mlx_whisper.load_models import load_model
 from scipy.signal import resample
 from pynput.keyboard import Key, Controller
@@ -99,6 +100,8 @@ with keyboard.Listener(on_press = on_press, on_release = on_release) as listener
 
 def update_recording():
     global recording
+    global audio_blocks
+
     should_be_recording = cmd_held and brack_held
 
     #if recording and should_be_recording: Just done for understanding
@@ -107,11 +110,16 @@ def update_recording():
     if recording and not should_be_recording:
         recording = False
         stream.stop()
-
-        OneD_audio_blocks = []
+        OneD_audio_blocks = np.concatenate(audio_blocks, axis = 0)
+        #for future reference, np.concatenate takes a list of lists and turns it into one 2D numpy array.
+        OneD_audio_blocks_flattened = OneD_audio_blocks.flatten()
+        n = len(OneD_audio_blocks_flattened)
+        duration = n/fs
+        OneD_audio_blocks_flattened_resampled = resample(OneD_audio_blocks_flattened, int(duration*16000))
 
 
     elif not recording and should_be_recording:
         recording = True
         audio_blocks = []
         stream.start()
+
