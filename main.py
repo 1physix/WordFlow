@@ -14,7 +14,7 @@ Models tested (replace to use):
 > mlx-community/whisper-turbo #Accurate, the fastest of the three, but not by that much.
 """
 
-model = "mlx-community/whisper-turbo"
+model = "mlx-community/whisper-large-v3-mlx"
 loaded_model = load_model(model)
 sample_rate = 16000 #Whisper only accepts audio files with a sample rate of 16kHz
 
@@ -87,11 +87,12 @@ def on_release(key):
     try: 
         if key == Key.cmd_r:
             cmd_held = False
+            update_recording()
 
         if key.char == ']':
             brack_held = False
+            update_recording()
 
-        update_recording()
     except:
         pass
 
