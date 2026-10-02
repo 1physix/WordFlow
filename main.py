@@ -7,13 +7,6 @@ from pynput.keyboard import Key, Controller
 from pynput import keyboard
 from time import sleep
 
-model = "mlx-community/whisper-turbo"
-loaded_model = load_model(model)
-sample_rate = 16000 #Whisper only accepts audio files with a sample rate of 16kHz
-
-"press, release are a pair. type to use variables"
-
-
 """
 Models tested (replace to use): 
 > mlx-community/whisper-large-v3-mlx #Accurate, but it's just too slow
@@ -21,6 +14,11 @@ Models tested (replace to use):
 > mlx-community/whisper-turbo #Accurate, the fastest of the three, but not by that much.
 """
 
+model = "mlx-community/whisper-turbo"
+loaded_model = load_model(model)
+sample_rate = 16000 #Whisper only accepts audio files with a sample rate of 16kHz
+
+"press, release are a pair. type to use variables"
 
 
 """
@@ -44,6 +42,7 @@ print(text2)
 # to an array.
 """
 
+#<<< START of Audio input functions >>>
 audio_blocks = []
 fs = 48000 #Hz
 sd.default.channels = 1
@@ -55,9 +54,9 @@ def callback(indata, frames, time, status): #the function that is called by the 
     audio_blocks.append(indata)
 
 stream = sd.InputStream(samplerate=fs, channels=sd.default.channels, callback=callback)
+#<<< END of Audio input functions >>>
 
-
-"""
+#<<< START of Hotkey functions >>>
 cmd_held = False #base state
 brack_held = False #base state
 
@@ -92,11 +91,8 @@ def on_release(key):
     except:
         pass
 
-with keyboard.Listener(on_press = on_press, on_release = on_release) as listener: #Starts and stops listener in one line - Context Managing
-    listener.join()
-    #^^keeps the listener object active until conditions are met.
+#<<< END of Hotkey functions >>>
 
-"""
 
 def update_recording():
     global recording
@@ -116,6 +112,7 @@ def update_recording():
         n = len(OneD_audio_blocks_flattened)
         duration = n/fs
         OneD_audio_blocks_flattened_resampled = resample(OneD_audio_blocks_flattened, int(duration*16000))
+        speech_to_text(OneD_audio_blocks_flattened_resampled)
 
 
     elif not recording and should_be_recording:
@@ -123,3 +120,11 @@ def update_recording():
         audio_blocks = []
         stream.start()
 
+def speech_to_text(audio_to_transcribe):
+    text = mlx.transcribe(audio_to_transcribe, path_or_hf_repo = model)["text"]
+    print(text)
+
+
+with keyboard.Listener(on_press = on_press, on_release = on_release) as listener: #Starts and stops listener in one line - Context Managing
+    listener.join()
+    #^^keeps the listener object active until conditions are met.
