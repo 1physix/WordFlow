@@ -76,6 +76,8 @@ def on_press(key):
                 print("Both CMD and § are pressed. Killing program.")
                 return False
 
+        update_recording()
+
     except:
         pass
 
@@ -88,6 +90,8 @@ def on_release(key):
 
         if key.char == ']':
             brack_held = False
+
+        update_recording()
     except:
         pass
 
@@ -105,6 +109,7 @@ def update_recording():
 
     if recording and not should_be_recording:
         recording = False
+        print("Recording stopped...")
         stream.stop()
         OneD_audio_blocks = np.concatenate(audio_blocks, axis = 0)
         #for future reference, np.concatenate takes a list of lists and turns it into one 2D numpy array.
@@ -117,10 +122,12 @@ def update_recording():
 
     elif not recording and should_be_recording:
         recording = True
+        print("Recording started...")
         audio_blocks = []
         stream.start()
 
 def speech_to_text(audio_to_transcribe):
+    print("Transcribing...")
     text = mlx.transcribe(audio_to_transcribe, path_or_hf_repo = model)["text"]
     print(text)
 
