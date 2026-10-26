@@ -15,8 +15,11 @@ Models tested (replace to use):
 """
 
 model = "mlx-community/whisper-turbo"
-loaded_model = load_model(model)
 sample_rate = 16000 #Whisper only accepts audio files with a sample rate of 16kHz
+
+cache_loader = np.zeros((16000, ), dtype = np.float32)
+mlx.transcribe(cache_loader, path_or_hf_repo = model)
+print("Model ready...")
 
 "press, release are a pair. type to use variables"
 
@@ -55,6 +58,8 @@ def callback(indata, frames, time, status): #the function that is called by the 
 
 stream = sd.InputStream(samplerate=fs, channels=sd.default.channels, callback=callback)
 #<<< END of Audio input functions >>>
+
+
 
 #<<< START of Hotkey functions >>>
 cmd_held = False #base state
@@ -112,15 +117,21 @@ def update_recording():
         stream.stop()
 
         ##
-        print(len(audio_blocks), np.array_equal(audio_blocks[0], audio_blocks[-1]))
+        if len(audio_blocks) > 0:
+            
+            OneD_audio_blocks = np.concatenate(audio_blocks, axis = 0)
+            #for future reference, np.concatenate takes a list of lists and turns it into one 2D numpy array.
+            OneD_audio_blocks_flattened = OneD_audio_blocks.flatten()
+            n = len(OneD_audio_blocks_flattened)
+            duration = n/fs
+            if duration >= 0.5:
+                OneD_audio_blocks_flattened_resampled = resample(OneD_audio_blocks_flattened, int(duration*16000))
+                speech_to_text(OneD_audio_blocks_flattened_resampled)
+            else:
+                print("Too short...")
+        else:
+            print("Ignored...")
 
-        OneD_audio_blocks = np.concatenate(audio_blocks, axis = 0)
-        #for future reference, np.concatenate takes a list of lists and turns it into one 2D numpy array.
-        OneD_audio_blocks_flattened = OneD_audio_blocks.flatten()
-        n = len(OneD_audio_blocks_flattened)
-        duration = n/fs
-        OneD_audio_blocks_flattened_resampled = resample(OneD_audio_blocks_flattened, int(duration*16000))
-        speech_to_text(OneD_audio_blocks_flattened_resampled)
 
 
     elif should_be_recording and not recording:
