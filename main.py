@@ -20,6 +20,7 @@ sample_rate = 16000 #Whisper only accepts audio files with a sample rate of 16kH
 cache_loader = np.zeros((16000, ), dtype = np.float32)
 mlx.transcribe(cache_loader, path_or_hf_repo = model)
 print("Model ready...")
+keyboard = Controller()
 
 "press, release are a pair. type to use variables"
 
@@ -145,8 +146,11 @@ def speech_to_text(audio_to_transcribe):
     text = mlx.transcribe(audio_to_transcribe, path_or_hf_repo = model)["text"]
     print("Text: ")
     print(text)
+    keyboard.type(text)
 
 
 with keyboard.Listener(on_press = on_press, on_release = on_release) as listener: #Starts and stops listener in one line - Context Managing
     listener.join()
     #^^keeps the listener object active until conditions are met.
+
+                                                                                                         
