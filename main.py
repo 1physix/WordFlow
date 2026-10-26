@@ -14,7 +14,7 @@ Models tested (replace to use):
 > mlx-community/whisper-turbo #Accurate, the fastest of the three, but not by that much.
 """
 
-model = "mlx-community/whisper-large-v3-mlx"
+model = "mlx-community/whisper-turbo"
 loaded_model = load_model(model)
 sample_rate = 16000 #Whisper only accepts audio files with a sample rate of 16kHz
 
@@ -63,38 +63,36 @@ brack_held = False #base state
 def on_press(key):
     global cmd_held
     global brack_held
-    try:
 
-        if key == Key.cmd_r:
-            cmd_held = True
+    char = getattr(key, "char", None)
 
-        if key.char == "]":
-            brack_held = True
+    if key == Key.cmd_r:
+        cmd_held = True
 
-        if cmd_held == True:
-            if key.char == "§":
-                print("Both CMD and § are pressed. Killing program.")
-                return False
+    if char == "]":
+        brack_held = True
 
-        update_recording()
+    if cmd_held == True:
+        if char == "§":
+            print("Both CMD and § are pressed. Killing program.")
+            return False
 
-    except:
-        pass
+    update_recording()
+
 
 
 def on_release(key):
     global cmd_held
-    try: 
-        if key == Key.cmd_r:
-            cmd_held = False
-            update_recording()
+    global brack_held
+    char = getattr(key, "char", None)
 
-        if key.char == ']':
-            brack_held = False
-            update_recording()
+    if key == Key.cmd_r:
+        cmd_held = False
+        update_recording()
 
-    except:
-        pass
+    if char == ']':
+        brack_held = False
+        update_recording()
 
 #<<< END of Hotkey functions >>>
 
@@ -130,6 +128,8 @@ def update_recording():
 def speech_to_text(audio_to_transcribe):
     print("Transcribing...")
     text = mlx.transcribe(audio_to_transcribe, path_or_hf_repo = model)["text"]
+    print(max(audio_to_transcribe))
+    print("Text: ")
     print(text)
 
 
