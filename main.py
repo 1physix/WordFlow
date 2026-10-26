@@ -51,7 +51,7 @@ recording = False
 
 def callback(indata, frames, time, status): #the function that is called by the InputStream object every time it records a block
     global audio_blocks
-    audio_blocks.append(indata)
+    audio_blocks.append(indata.copy())
 
 stream = sd.InputStream(samplerate=fs, channels=sd.default.channels, callback=callback)
 #<<< END of Audio input functions >>>
@@ -110,6 +110,10 @@ def update_recording():
         recording = False
         print("Recording stopped...")
         stream.stop()
+
+        ##
+        print(len(audio_blocks), np.array_equal(audio_blocks[0], audio_blocks[-1]))
+
         OneD_audio_blocks = np.concatenate(audio_blocks, axis = 0)
         #for future reference, np.concatenate takes a list of lists and turns it into one 2D numpy array.
         OneD_audio_blocks_flattened = OneD_audio_blocks.flatten()
@@ -119,7 +123,7 @@ def update_recording():
         speech_to_text(OneD_audio_blocks_flattened_resampled)
 
 
-    elif not recording and should_be_recording:
+    elif should_be_recording and not recording:
         recording = True
         print("Recording started...")
         audio_blocks = []
@@ -128,7 +132,6 @@ def update_recording():
 def speech_to_text(audio_to_transcribe):
     print("Transcribing...")
     text = mlx.transcribe(audio_to_transcribe, path_or_hf_repo = model)["text"]
-    print(max(audio_to_transcribe))
     print("Text: ")
     print(text)
 
